@@ -4,8 +4,14 @@
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   </head>
   <body>
+    <button id="firstbutton">Click Me!</button>
     <py-script>
-        print('Hello, World!')
+        from js import document, Element
+        from pyodide import create_proxy
+        def on_click(event):
+            print('Hello, World!')
+        button = document.getElementById("firstbutton")
+        button.addEventListener("click", create_proxy(on_click))
     </py-script>
   </body>
 </html>
