@@ -2,24 +2,54 @@
   <head>
     <link rel="stylesheet" href="https://pyscript.net/latest/pyscript.css" />
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
+    <script src="https://cdn.jsdelivr.net/pyodide/dev/full/pyodide.js"></script>
   </head>
   <body>
     <h1>My OpenCV Webapp!!</h1>
     <br>
-    <button id="firstbutton">Click Me!</button><br><br>
+    <button id="firstbutton">Detect Face</button><br><br>
     <button id="secondbutton">Click Me! 2</button>
     <py-script>
         from js import document, Element
         import pyodide
-        def on_click(event):
-            print('Hello, World!')
-        def on_click_1(event):
-            print('Hello, World! 2')    
-        button = document.getElementById("firstbutton")
-        button.addEventListener("click", pyodide.ffi.create_proxy(on_click))
-        button_1 = document.getElementById("secondbutton")
-        button_1.addEventListener("click", pyodide.ffi.create_proxy(on_click_1))
+        import asyncio
+        import micropip
+        
+        async def main():
+            await micropip.install('opencv-python')
+            import cv2
+             
+            async def on_click(event):
+                print('Hello, World!')
+                await asyncio.sleep(1)
+                face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
+                cap = cv2.VideoCapture(0)
+                while True:
+                    successful_frame_read, frame = cap.read()
+                    gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+                    faces = face_cascade.detectMultiScale(gray, 1.1, 4)
+                    for (x, y, w, h) in faces:
+                        cv2.rectangle(frame, (x, y), (x+w, y+h), (255, 0, 0), 2)
+                        cv2.putText(frame, 'Face', (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.9, (0, 255, 0), 2) 
+                    cv2.imshow('img', frame)
+                    k = cv2.waitKey(30) & 0xff
+                    if k==27:
+                        break    
+                cap.release()  
+                
+            loop = asyncio.get_event_loop()    
+            task = asyncio.ensure_future(on_click(None))
+            await task
 
+            button = document.getElementById("firstbutton")
+            button.addEventListener("click", pyodide.ffi.create_proxy(on_click))
+
+            def on_click_1(event):
+                print('Hello, World! 2')
+            button_1 = document.getElementById("secondbutton")
+            button_1.addEventListener("click", pyodide.ffi.create_proxy(on_click_1))
+            
+        asyncio.ensure_future(main())
     </py-script>
   </body>
 </html>
