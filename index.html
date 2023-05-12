@@ -4,14 +4,22 @@
     <script defer src="https://pyscript.net/latest/pyscript.js"></script>
   </head>
   <body>
-    <button id="firstbutton">Click Me!</button>
+    <h1>My OpenCV Webapp!!</h1>
+    <br>
+    <button id="firstbutton">Click Me!</button><br><br>
+    <button id="secondbutton">Click Me! 2</button>
     <py-script>
         from js import document, Element
-        from pyodide import create_proxy
+        import pyodide
         def on_click(event):
             print('Hello, World!')
+        def on_click_1(event):
+            print('Hello, World! 2')    
         button = document.getElementById("firstbutton")
-        button.addEventListener("click", create_proxy(on_click))
+        button.addEventListener("click", pyodide.ffi.create_proxy(on_click))
+        button_1 = document.getElementById("secondbutton")
+        button_1.addEventListener("click", pyodide.ffi.create_proxy(on_click_1))
+
     </py-script>
   </body>
 </html>
